@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Triad Learning Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .control-panel {
+            background: #f8f9ff;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 2px solid #e1e5f2;
+        }
+
+        .control-panel h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+
+        select {
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .formula-display {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
+        .formula-display h3 {
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .piano-container {
+            margin: 30px 0;
+            text-align: center;
+        }
+
+        .piano-container h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .piano {
+            display: inline-block;
+            position: relative;
+            background: #333;
+            border-radius: 10px;
+            padding: 20px 10px 10px 10px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        .keys {
+            display: flex;
+            position: relative;
+        }
+
+        .key {
+            cursor: pointer;
+            transition: all 0.1s ease;
+            user-select: none;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .white-key {
+            width: 40px;
+            height: 200px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 0 0 8px 8px;
+            margin: 0 1px;
+            z-index: 1;
+        }
+
+        .black-key {
+            width: 25px;
+            height: 120px;
+            background: #333;
+            color: white;
+            position: absolute;
+            z-index: 2;
+            border-radius: 0 0 5px 5px;
+            transform: translateX(-50%);
+        }
+
+        .key:hover {
+            transform: translateY(2px);
+        }
+
+        .key:active {
+            transform: translateY(4px);
+        }
+
+        .highlighted {
+            background: #ffd700 !important;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8) !important;
+            color: #333 !important;
+        }
+
+        .song-analyzer {
+            background: #fff8e1;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 2px solid #ffe082;
+        }
+
+        .song-analyzer h2 {
+            color: #f57f17;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .song-selector {
+            margin-bottom: 20px;
+        }
+
+        .chord-progression {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            border: 2px solid #ffe082;
+            min-height: 60px;
+        }
+
+        .chord {
+            display: inline-block;
+            background: #4facfe;
+            color: white;
+            padding: 8px 15px;
+            margin: 5px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .chord:hover {
+            background: #0066cc;
+            transform: scale(1.05);
+        }
+
+        .chord:active {
+            transform: scale(0.95);
+        }
+
+        .scale-degrees {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .scale-degree {
+            background: white;
+            border: 2px solid #ffe082;
+            border-radius: 10px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .scale-degree:hover {
+            background: #fff3c4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .note-name {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #f57f17;
+        }
+
+        .solfege {
+            font-size: 0.9em;
+            color: #666;
+            margin: 5px 0;
+        }
+
+        .scale-number {
+            font-size: 0.8em;
+            color: #999;
+        }
+
+        .key-content {
+            margin-top: 20px;
+        }
+
+        .scale-section, .chord-section, .theory-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #ffe082;
+        }
+
+        .scale-section h3, .chord-section h3, .theory-section h3 {
+            color: #f57f17;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffe082;
+            padding-bottom: 5px;
+        }
+
+        .progression-selector {
+            margin-bottom: 15px;
+        }
+
+        .progression-selector label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4a5568;
+            display: block;
+        }
+
+        .theory-content {
+            line-height: 1.6;
+        }
+
+        .theory-item {
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #f8f9ff;
+            border-radius: 5px;
+        }
+
+        .chord-analysis {
+            margin-top: 15px;
+        }
+
+        .chord-info {
+            display: inline-block;
+            margin: 5px 10px 5px 0;
+            padding: 5px 10px;
+            background: #e3f2fd;
+            border-radius: 15px;
+            font-size: 0.9em;
+        }
+
+        .default-content {
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .default-content ul {
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .key-selector {
+            margin-bottom: 20px;
+        }
+
+        .key-selector label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4a5568;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .controls {
+                grid-template-columns: 1fr;
+            }
+
+            .white-key {
+                width: 35px;
+                height: 180px;
+            }
+
+            .black-key {
+                width: 22px;
+                height: 110px;
+            }
+
+            .piano {
+                padding: 15px 5px 5px 5px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .white-key {
+                width: 30px;
+                height: 160px;
+            }
+
+            .black-key {
+                width: 20px;
+                height: 100px;
+            }
+
+            .key {
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Interactive Triad Learning Tool</h1>
+            <p>Learn triads, inversions, and their application in songs</p>
+        </div>
+        
+        <div class="content">
+            <div class="control-panel">
+                <h2>Chord Controls</h2>
+                <div class="controls">
+                    <div class="control-group">
+                        <label for="rootNote">Root Note:</label>
+                        <select id="rootNote">
+                            <option value="C" selected>C</option>
+                            <option value="D">D</option>
+                            <option value="E">E</option>
+                            <option value="F">F</option>
+                            <option value="G">G</option>
+                            <option value="A">A</option>
+                            <option value="B">B</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="triadType">Triad Type:</label>
+                        <select id="triadType">
+                            <option value="Major" selected>Major</option>
+                            <option value="Minor">Minor</option>
+                            <option value="Diminished">Diminished</option>
+                            <option value="Augmented">Augmented</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label for="inversion">Inversion:</label>
+                        <select id="inversion">
+                            <option value="Root" selected>Root Position</option>
+                            <option value="First">First Inversion</option>
+                            <option value="Second">Second Inversion</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="formula-display" id="formulaDisplay">
+                    <h3>Chord Formula:</h3>
+                    <div id="formulaText">Root: C, Third: Major Third, Fifth: Perfect Fifth</div>
+                </div>
+            </div>
+
+            <div class="piano-container">
+                <h2>Piano Keyboard</h2>
+                <div class="piano">
+                    <div class="keys" id="piano"></div>
+                </div>
+            </div>
+
+            <div class="song-analyzer">
+                <h2>Key Learning Center</h2>
+                <div class="key-selector">
+                    <label for="keySelect">Select a Key to Learn:</label>
+                    <select id="keySelect">
+                        <option value="">Choose a key...</option>
+                        <option value="C">Key of C Major</option>
+                        <option value="D">Key of D Major</option>
+                        <option value="E">Key of E Major</option>
+                        <option value="F">Key of F Major</option>
+                        <option value="G">Key of G Major</option>
+                        <option value="A">Key of A Major</option>
+                        <option value="B">Key of B Major</option>
+                    </select>
+                </div>
+                
+                <div id="keyLearningContent" class="key-content" style="display: none;">
+                    <div class="scale-section">
+                        <h3>Scale Degrees (Solfege)</h3>
+                        <div class="scale-degrees" id="scaleDegrees"></div>
+                    </div>
+                    
+                    <div class="chord-section">
+                        <h3>Chord Progressions in this Key</h3>
+                        <div class="progression-selector">
+                            <label for="progressionSelect">Choose a progression:</label>
+                            <select id="progressionSelect">
+                                <option value="">Select a progression...</option>
+                                <option value="I-IV-V-I">I-IV-V-I (Classic)</option>
+                                <option value="vi-IV-I-V">vi-IV-I-V (Pop Ballad)</option>
+                                <option value="I-V-vi-IV">I-V-vi-IV (Let It Be)</option>
+                                <option value="ii-V-I">ii-V-I (Jazz)</option>
+                                <option value="I-vi-IV-V">I-vi-IV-V (50s Progression)</option>
+                                <option value="vi-V-IV-V">vi-V-IV-V (Emotional)</option>
+                            </select>
+                        </div>
+                        <div class="chord-progression" id="chordProgression"></div>
+                    </div>
+                    
+                    <div class="theory-section">
+                        <h3>Music Theory for this Key</h3>
+                        <div id="keyTheory" class="theory-content"></div>
+                    </div>
+                </div>
+                
+                <div id="defaultKeyContent" class="default-content">
+                    <div style="text-align: center; color: #f57f17; padding: 20px;">
+                        <h3>🎵 Welcome to the Key Learning Center! 🎵</h3>
+                        <p>Select a key above to learn:</p>
+                        <ul style="text-align: left; display: inline-block; margin-top: 15px;">
+                            <li><strong>Scale Degrees:</strong> Do, Re, Mi, Fa, Sol, La, Ti</li>
+                            <li><strong>Chord Progressions:</strong> Popular progressions in that key</li>
+                            <li><strong>Music Theory:</strong> Key signature and chord qualities</li>
+                            <li><strong>Interactive Practice:</strong> Click any chord to hear it!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class TriadLearningApp {
+            constructor() {
+                this.audioContext = null;
+                this.oscillators = [];
+                this.currentChordNotes = [];
+                
+                // Note to frequency mapping (C4 to B5)
+                this.noteFrequencies = {
+                    'C4': 261.63, 'C#4': 277.18, 'D4': 293.66, 'D#4': 311.13,
+                    'E4': 329.63, 'F4': 349.23, 'F#4': 369.99, 'G4': 392.00,
+                    'G#4': 415.30, 'A4': 440.00, 'A#4': 466.16, 'B4': 493.88,
+                    'C5': 523.25, 'C#5': 554.37, 'D5': 587.33, 'D#5': 622.25,
+                    'E5': 659.25, 'F5': 698.46, 'F#5': 739.99, 'G5': 783.99,
+                    'G#5': 830.61, 'A5': 880.00, 'A#5': 932.33, 'B5': 987.77
+                };
+
+                // Chromatic scale for calculations
+                this.chromaticScale = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+                
+                // Song progressions
+                this.songs = {
+                    twinkle: ['C', 'C', 'G', 'G', 'A', 'A', 'G', 'G', 'F', 'F', 'E', 'E', 'D', 'D', 'C', 'C', 'G', 'G', 'F', 'F', 'E', 'E', 'D', 'D', 'G', 'G', 'F', 'F', 'E', 'E', 'D', 'D', 'C', 'C', 'G', 'G', 'A', 'A', 'G', 'G', 'F', 'F', 'E', 'E', 'D', 'D', 'C', 'C'],
+                    letitbe: ['C', 'G', 'Am', 'F', 'C', 'G', 'F', 'C']
+                };
+
+                // Common chord progressions in Roman numeral notation
+                this.progressionTemplates = {
+                    'I-V-vi-IV': [0, 7, 9, 5], // C-G-Am-F in C major
+                    'vi-IV-I-V': [9, 5, 0, 7], // Am-F-C-G in C major
+                    'I-vi-IV-V': [0, 9, 5, 7], // C-Am-F-G in C major
+                    'ii-V-I': [2, 7, 0], // Dm-G-C in C major
+                    'I-IV-V-I': [0, 5, 7, 0], // C-F-G-C in C major
+                    'vi-V-IV-V': [9, 7, 5, 7] // Am-G-F-G in C major
+                };
+
+                // Scale degrees for major scale (semitones from root)
+                this.majorScaleDegrees = [0, 2, 4, 5, 7, 9, 11];
+                
+                // Chord qualities for each scale degree in major key
+                this.majorKeyQualities = ['', 'm', 'm', '', '', 'm', 'dim'];
+                this.init();
+            }
+
+            async init() {
+                await this.initAudio();
+                this.createPiano();
+                this.setupEventListeners();
+                this.updateChord();
+            }
+
+            async initAudio() {
+                try {
+                    this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    
+                    // Resume audio context on first user interaction
+                    document.addEventListener('click', async () => {
+                        if (this.audioContext.state === 'suspended') {
+                            await this.audioContext.resume();
+                        }
+                    }, { once: true });
+                } catch (error) {
+                    console.error('Audio context initialization failed:', error);
+                }
+            }
+
+            createPiano() {
+                const pianoElement = document.getElementById('piano');
+                // Extended range for better chord display
+                const whiteKeys = ['C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5', 'G5', 'A5', 'B5', 'C6'];
+                const blackKeys = [
+                    { note: 'C#3', position: 1 },
+                    { note: 'D#3', position: 2 },
+                    { note: 'F#3', position: 4 },
+                    { note: 'G#3', position: 5 },
+                    { note: 'A#3', position: 6 },
+                    { note: 'C#4', position: 8 },
+                    { note: 'D#4', position: 9 },
+                    { note: 'F#4', position: 11 },
+                    { note: 'G#4', position: 12 },
+                    { note: 'A#4', position: 13 },
+                    { note: 'C#5', position: 15 },
+                    { note: 'D#5', position: 16 },
+                    { note: 'F#5', position: 18 },
+                    { note: 'G#5', position: 19 },
+                    { note: 'A#5', position: 20 },
+                    { note: 'C#6', position: 22 },
+                ];
+
+                // Create white keys
+                whiteKeys.forEach((note, index) => {
+                    const key = document.createElement('div');
+                    key.className = 'key white-key';
+                    key.dataset.note = note;
+                    key.textContent = note.replace('4', '').replace('5', '');
+                    key.addEventListener('click', () => this.playNote(note));
+                    pianoElement.appendChild(key);
+                });
+
+                // Create black keys
+                blackKeys.forEach(({ note, position }) => {
+                    const key = document.createElement('div');
+                    key.className = 'key black-key';
+                    key.dataset.note = note;
+                    key.textContent = note.replace('4', '').replace('5', '');
+                    key.textContent = note.replace(/[3456]/g, '');
+                    key.style.left = `${position * 41 + 30}px`;
+                    key.addEventListener('click', () => this.playNote(note));
+                    pianoElement.appendChild(key);
+                });
+                
+                // Initialize keyboard container for shifting
+                this.initializeKeyboardShifting();
+            }
+
+            initializeKeyboardShifting() {
+                const pianoContainer = document.querySelector('.piano');
+                const keysContainer = document.getElementById('piano');
+                
+                // Set up scrollable container
+                pianoContainer.style.overflowX = 'auto';
+                pianoContainer.style.scrollBehavior = 'smooth';
+                pianoContainer.style.maxWidth = '100%';
+                
+                // Hide scrollbar for cleaner look
+                pianoContainer.style.scrollbarWidth = 'none'; // Firefox
+                pianoContainer.style.msOverflowStyle = 'none'; // IE/Edge
+                
+                // Add webkit scrollbar hiding
+                const style = document.createElement('style');
+                style.textContent = `
+                    .piano::-webkit-scrollbar {
+                        display: none;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            setupEventListeners() {
+                document.getElementById('rootNote').addEventListener('change', () => this.updateChord());
+                document.getElementById('triadType').addEventListener('change', () => this.updateChord());
+                document.getElementById('inversion').addEventListener('change', () => this.updateChord());
+                document.getElementById('keySelect').addEventListener('change', () => this.displayKeyContent());
+                document.getElementById('progressionSelect').addEventListener('change', () => this.displayProgression());
+            }
+
+            playNote(note, duration = 0.5) {
+                if (!this.audioContext || !this.noteFrequencies[note]) return;
+
+                const oscillator = this.audioContext.createOscillator();
+                const gainNode = this.audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(this.audioContext.destination);
+
+                oscillator.frequency.setValueAtTime(this.noteFrequencies[note], this.audioContext.currentTime);
+                oscillator.type = 'sine';
+
+                gainNode.gain.setValueAtTime(0.1, this.audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, this.audioContext.currentTime + duration);
+
+                oscillator.start(this.audioContext.currentTime);
+                oscillator.stop(this.audioContext.currentTime + duration);
+            }
+
+            playChord(notes) {
+                notes.forEach(note => this.playNote(note, 1.5));
+            }
+
+            getTriadNotes(root, type) {
+                const rootIndex = this.chromaticScale.indexOf(root);
+                let intervals;
+
+                switch (type) {
+                    case 'Major':
+                        intervals = [0, 4, 7];
+                        break;
+                    case 'Minor':
+                        intervals = [0, 3, 7];
+                        break;
+                    case 'Diminished':
+                        intervals = [0, 3, 6];
+                        break;
+                    case 'Augmented':
+                        intervals = [0, 4, 8];
+                        break;
+                    default:
+                        intervals = [0, 4, 7];
+                }
+
+                return intervals.map(interval => {
+                    const noteIndex = (rootIndex + interval) % 12;
+                    return this.chromaticScale[noteIndex];
+                });
+            }
+
+            applyInversion(notes, inversion) {
+                const [root, third, fifth] = notes;
+                
+                switch (inversion) {
+                    case 'First':
+                        return [third, fifth, root];
+                    case 'Second':
+                        return [fifth, root, third];
+                    default:
+                        return [root, third, fifth];
+                }
+            }
+
+            getChordNotesWithOctaves(chordNotes) {
+                // Intelligent octave assignment for better chord voicing
+                const inversion = document.getElementById('inversion').value;
+                const rootNote = document.getElementById('rootNote').value;
+                
+                // Calculate optimal octave range based on root note and inversion
+                let baseOctave = 4;
+                
+                // Adjust base octave for lower notes to ensure good spacing
+                const rootIndex = this.chromaticScale.indexOf(rootNote);
+                if (rootIndex >= 6) { // F, F#, G, G#, A, A#, B
+                    baseOctave = 3;
+                }
+
+                let octaves;
+                if (inversion === 'Root') {
+                    octaves = [baseOctave, baseOctave, baseOctave + 1];
+                } else if (inversion === 'First') {
+                    octaves = [baseOctave, baseOctave + 1, baseOctave + 1];
+                } else { // Second inversion
+                    octaves = [baseOctave, baseOctave + 1, baseOctave + 1];
+                }
+
+                return chordNotes.map((note, index) => {
+                    return note + octaves[index];
+                });
+            }
+
+            updateChord() {
+                const root = document.getElementById('rootNote').value;
+                const type = document.getElementById('triadType').value;
+                const inversion = document.getElementById('inversion').value;
+
+                // Get triad notes
+                const triadNotes = this.getTriadNotes(root, type);
+                const chordNotes = this.applyInversion(triadNotes, inversion);
+                
+                // Convert to octave notation
+                this.currentChordNotes = this.getChordNotesWithOctaves(chordNotes);
+
+                // Update display
+                this.updateFormulaDisplay(root, type, inversion, triadNotes, chordNotes);
+                this.highlightKeys();
+                this.playChord(this.currentChordNotes);
+            }
+
+            transposeChordToKey(semitoneOffset, rootKey) {
+                const rootIndex = this.chromaticScale.indexOf(rootKey);
+                const newNoteIndex = (rootIndex + semitoneOffset) % 12;
+                return this.chromaticScale[newNoteIndex];
+            }
+
+            getScaleNotes(rootKey) {
+                const rootIndex = this.chromaticScale.indexOf(rootKey);
+                const scaleNotes = [];
+                
+                this.majorScaleDegrees.forEach(interval => {
+                    const noteIndex = (rootIndex + interval) % 12;
+                    scaleNotes.push(this.chromaticScale[noteIndex]);
+                });
+                
+                return scaleNotes;
+            }
+
+            getKeySignature(rootKey) {
+                const keySignatures = {
+                    'C': 'No sharps or flats',
+                    'D': '2 sharps (F#, C#)',
+                    'E': '4 sharps (F#, C#, G#, D#)',
+                    'F': '1 flat (Bb)',
+                    'G': '1 sharp (F#)',
+                    'A': '3 sharps (F#, C#, G#)',
+                    'B': '5 sharps (F#, C#, G#, D#, A#)'
+                };
+                return keySignatures[rootKey] || 'Unknown key signature';
+            }
+
+            displayKeyContent() {
+                const keySelect = document.getElementById('keySelect');
+                const keyContent = document.getElementById('keyLearningContent');
+                const defaultContent = document.getElementById('defaultKeyContent');
+                const progressionSelect = document.getElementById('progressionSelect');
+                
+                if (!keySelect.value) {
+                    keyContent.style.display = 'none';
+                    defaultContent.style.display = 'block';
+                    return;
+                }
+                
+                const selectedKey = keySelect.value;
+                keyContent.style.display = 'block';
+                defaultContent.style.display = 'none';
+                
+                // Reset progression selector
+                progressionSelect.value = '';
+                
+                // Display scale degrees
+                this.displayScaleDegrees(selectedKey);
+                
+                // Display key theory
+                this.displayKeyTheory(selectedKey);
+                
+                // Clear progression display
+                document.getElementById('chordProgression').innerHTML = '<p style="text-align: center; color: #f57f17;">Select a progression above to see the chords</p>';
+            }
+
+            displayScaleDegrees(rootKey) {
+                const scaleNotes = this.getScaleNotes(rootKey);
+                const solfege = ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Ti'];
+                const scaleNumbers = ['1', '2', '3', '4', '5', '6', '7'];
+                const scaleDegreesElement = document.getElementById('scaleDegrees');
+                
+                scaleDegreesElement.innerHTML = '';
+                
+                scaleNotes.forEach((note, index) => {
+                    const degreeElement = document.createElement('div');
+                    degreeElement.className = 'scale-degree';
+                    degreeElement.innerHTML = `
+                        <div class="note-name">${note}</div>
+                        <div class="solfege">${solfege[index]}</div>
+                        <div class="scale-number">${scaleNumbers[index]}</div>
+                    `;
+                    degreeElement.addEventListener('click', () => {
+                        const noteWithOctave = note + '4';
+                        this.playNote(noteWithOctave, 1);
+                        this.highlightSingleNote(noteWithOctave);
+                    });
+                    scaleDegreesElement.appendChild(degreeElement);
+                });
+            }
+
+            displayKeyTheory(rootKey) {
+                const scaleNotes = this.getScaleNotes(rootKey);
+                const keySignature = this.getKeySignature(rootKey);
+                const chordQualities = ['Major', 'minor', 'minor', 'Major', 'Major', 'minor', 'diminished'];
+                const romanNumerals = ['I', 'ii', 'iii', 'IV', 'V', 'vi', 'vii°'];
+                
+                const theoryElement = document.getElementById('keyTheory');
+                
+                let chordsHtml = '<div class="chord-analysis"><h4>Diatonic Chords:</h4>';
+                scaleNotes.forEach((note, index) => {
+                    const quality = chordQualities[index];
+                    const roman = romanNumerals[index];
+                    chordsHtml += `<div class="chord-info"><strong>${roman}</strong> = ${note} ${quality}</div>`;
+                });
+                chordsHtml += '</div>';
+                
+                theoryElement.innerHTML = `
+                    <div class="theory-item">
+                        <strong>Key Signature:</strong> ${keySignature}
+                    </div>
+                    <div class="theory-item">
+                        <strong>Scale Notes:</strong> ${scaleNotes.join(' - ')}
+                    </div>
+                    ${chordsHtml}
+                `;
+            }
+
+            displayProgression() {
+                const keySelect = document.getElementById('keySelect');
+                const progressionSelect = document.getElementById('progressionSelect');
+                const progressionElement = document.getElementById('chordProgression');
+                
+                if (!keySelect.value || !progressionSelect.value) {
+                    progressionElement.innerHTML = '<p style="text-align: center; color: #f57f17;">Select a progression above to see the chords</p>';
+                    return;
+                }
+                
+                const selectedKey = keySelect.value;
+                const selectedProgression = progressionSelect.value;
+                
+                const progression = this.generateProgressionForKey(selectedProgression, selectedKey);
+                const romanNumerals = selectedProgression.split('-');
+                
+                progressionElement.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <strong>${selectedProgression} in ${selectedKey} Major</strong>
+                    </div>
+                `;
+                
+                progression.forEach((chord, index) => {
+                    const chordElement = document.createElement('span');
+                    chordElement.className = 'chord';
+                    chordElement.innerHTML = `${chord}<br><small>${romanNumerals[index]}</small>`;
+                    chordElement.addEventListener('click', () => this.selectChordFromProgression(chord));
+                    progressionElement.appendChild(chordElement);
+                });
+            }
+
+            generateProgressionForKey(templateName, rootKey) {
+                const template = this.progressionTemplates[templateName];
+                if (!template) return [];
+                
+                const progression = [];
+                
+                template.forEach(semitoneOffset => {
+                    const chordRoot = this.transposeChordToKey(semitoneOffset, rootKey);
+                    
+                    // Determine chord quality based on scale degree
+                    const scaleIndex = this.majorScaleDegrees.indexOf(semitoneOffset);
+                    const quality = this.majorKeyQualities[scaleIndex] || '';
+                    
+                    progression.push(chordRoot + quality);
+                });
+                
+                return progression;
+            }
+
+            highlightSingleNote(note) {
+                // Remove all highlights
+                document.querySelectorAll('.key').forEach(key => {
+                    key.classList.remove('highlighted');
+                });
+                
+                // Highlight single note
+                const keyElement = document.querySelector(`[data-note="${note}"]`);
+                if (keyElement) {
+                    keyElement.classList.add('highlighted');
+                    setTimeout(() => {
+                        keyElement.classList.remove('highlighted');
+                        this.highlightKeys(); // Restore chord highlighting
+                    }, 1000);
+                }
+            }
+
+            updateFormulaDisplay(root, type, inversion, originalTriad, chordNotes) {
+                const formulaText = document.getElementById('formulaText');
+                
+                let thirdType, fifthType;
+                
+                switch (type) {
+                    case 'Major':
+                        thirdType = 'Major Third';
+                        fifthType = 'Perfect Fifth';
+                        break;
+                    case 'Minor':
+                        thirdType = 'Minor Third';
+                        fifthType = 'Perfect Fifth';
+                        break;
+                    case 'Diminished':
+                        thirdType = 'Minor Third';
+                        fifthType = 'Diminished Fifth';
+                        break;
+                    case 'Augmented':
+                        thirdType = 'Major Third';
+                        fifthType = 'Augmented Fifth';
+                        break;
+                }
+
+                let inversionText = '';
+                if (inversion === 'First') {
+                    inversionText = '<br><strong>First Inversion:</strong> Third in bass (lowest note is the Third)';
+                } else if (inversion === 'Second') {
+                    inversionText = '<br><strong>Second Inversion:</strong> Fifth in bass (lowest note is the Fifth)';
+                } else {
+                    inversionText = '<br><strong>Root Position:</strong> Root in bass';
+                }
+
+                formulaText.innerHTML = `
+                    <strong>Root:</strong> ${root}<br>
+                    <strong>Third:</strong> ${thirdType}<br>
+                    <strong>Fifth:</strong> ${fifthType}
+                    ${inversionText}<br>
+                    <strong>Notes:</strong> ${chordNotes.join(' - ')}
+                `;
+            }
+
+            highlightKeys() {
+                // Remove all highlights
+                document.querySelectorAll('.key').forEach(key => {
+                    key.classList.remove('highlighted');
+                });
+
+                // Highlight current chord notes
+                this.currentChordNotes.forEach(note => {
+                    const keyElement = document.querySelector(`[data-note="${note}"]`);
+                    if (keyElement) {
+                        keyElement.classList.add('highlighted');
+                    }
+                });
+                
+                // Auto-shift keyboard to show all chord notes
+                this.shiftKeyboardToShowChord();
+            }
+
+            shiftKeyboardToShowChord() {
+                if (this.currentChordNotes.length === 0) return;
+                
+                const pianoContainer = document.querySelector('.piano');
+                const containerWidth = pianoContainer.clientWidth;
+                
+                // Find the leftmost and rightmost chord notes
+                let leftmostPosition = Infinity;
+                let rightmostPosition = -Infinity;
+                
+                this.currentChordNotes.forEach(note => {
+                    const keyElement = document.querySelector(`[data-note="${note}"]`);
+                    if (keyElement) {
+                        const rect = keyElement.getBoundingClientRect();
+                        const containerRect = pianoContainer.getBoundingClientRect();
+                        const relativeLeft = rect.left - containerRect.left + pianoContainer.scrollLeft;
+                        const relativeRight = relativeLeft + rect.width;
+                        
+                        leftmostPosition = Math.min(leftmostPosition, relativeLeft);
+                        rightmostPosition = Math.max(rightmostPosition, relativeRight);
+                    }
+                });
+                
+                // Calculate optimal scroll position
+                const chordWidth = rightmostPosition - leftmostPosition;
+                const padding = 100; // Extra space on sides
+                
+                let targetScrollLeft;
+                
+                if (chordWidth + (padding * 2) <= containerWidth) {
+                    // Chord fits in view, center it
+                    const chordCenter = leftmostPosition + (chordWidth / 2);
+                    targetScrollLeft = chordCenter - (containerWidth / 2);
+                } else {
+                    // Chord is wider than view, show from leftmost note
+                    targetScrollLeft = leftmostPosition - padding;
+                }
+                
+                // Ensure scroll position is within bounds
+                const maxScroll = pianoContainer.scrollWidth - containerWidth;
+                targetScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScroll));
+                
+                // Smooth scroll to position
+                pianoContainer.scrollTo({
+                    left: targetScrollLeft,
+                    behavior: 'smooth'
+                });
+            }
+
+            selectChordFromProgression(chordSymbol) {
+                // Parse chord symbol
+                let root, type;
+                
+                if (chordSymbol.includes('m') && !chordSymbol.includes('maj')) {
+                    root = chordSymbol.replace('m', '');
+                    type = 'Minor';
+                } else if (chordSymbol.includes('dim')) {
+                    root = chordSymbol.replace('dim', '');
+                    type = 'Diminished';
+                } else if (chordSymbol.includes('aug')) {
+                    root = chordSymbol.replace('aug', '');
+                    type = 'Augmented';
+                } else {
+                    root = chordSymbol;
+                    type = 'Major';
+                }
+
+                // Update controls
+                document.getElementById('rootNote').value = root;
+                document.getElementById('triadType').value = type;
+                document.getElementById('inversion').value = 'Root';
+
+                // Update chord
+                this.updateChord();
+            }
+        }
+
+        // Initialize the application when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            new TriadLearningApp();
+        });
+    </script>
+</body>
+</html>
